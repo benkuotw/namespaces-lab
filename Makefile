@@ -4,6 +4,8 @@ PROGS  = $(basename $(wildcard *.c))
 
 all: $(PROGS)
 
+$(PROGS): ns_util.h
+
 format:
 	clang-format -i $(SRCS)
 
