@@ -20,27 +20,29 @@ static int print_ns_inodes(const char *who)
 		"uts"
 	};
 
+	pid_t pid=getpid();
+	char path[64];
+	char buf[64];
 	int ret = 0;
 
-	pid_t pid=getpid();
+	//readlink /proc/self/ns/<ns>
 	for (size_t i = 0; i < sizeof(ns_list) / sizeof(ns_list[0]); i++) {
 		char *ns = ns_list[i];
-		char path[64];
-		int n = snprintf(path, sizeof(path), "/proc/self/ns/%s", ns);
+		memset(path,0,sizeof(path));
+		int n = snprintf(path, sizeof(path), "/proc/%d/ns/%s", pid, ns);
 		if (n < 0 || (size_t) n >= sizeof(path)) {
 			fprintf(stderr, "snprintf: path too long for %s\n", ns);
 			ret = -1;
 			continue;
 		}
 
-		//stat() follows the symlink, so st_ino is the namespace's inode
-		struct stat st;
-		if (stat(path, &st) == -1) {
+		memset(buf,0,sizeof(buf));
+		if (readlink(path, buf, sizeof(buf)) == -1) {
 			perror(path);
 			ret = -1;
 			continue;
 		}
-		fprintf(stderr, "%s[%d]: %s[%lu]\n", who, pid, ns, (unsigned long) st.st_ino);
+		fprintf(stderr, "%s[%u]: %s\n", who, pid, buf);
 	}
 
 	return ret;
