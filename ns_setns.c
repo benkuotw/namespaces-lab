@@ -24,7 +24,7 @@ int main(int argc, char *argv[]) {
 
 	int fd = syscall(SYS_pidfd_open, pid, 0);
 	if (fd == -1) {
-		perror("open");
+		perror("pidfd_open");
 		return EXIT_FAILURE;
 	}
 
@@ -47,5 +47,6 @@ int main(int argc, char *argv[]) {
 
 	print_ns_inodes(argv[0]);
 
+	close(fd);
 	return EXIT_SUCCESS;
 }

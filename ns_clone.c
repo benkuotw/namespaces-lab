@@ -14,8 +14,6 @@
 #define STACK_SIZE (1024 * 1024)
 
 int child_func(void *arg) {
-	pid_t pid = getpid();
-
 	// prevent propagation, man mount_namespaces.7
 	if (mount(NULL, "/", NULL, MS_SLAVE | MS_REC, NULL) == -1) {
 		perror("mount");
@@ -29,19 +27,9 @@ int child_func(void *arg) {
 
 	print_ns_inodes(" child");
 
-	// change hostname in new uts namespace
-	char set_hostname[] = "NEW HOSTNAME";
-	if (sethostname(set_hostname, strlen(set_hostname)) == -1) {
-		perror("sethostname");
+	if (set_and_print_hostname(" child", "NEW HOSTNAME") == -1) {
 		exit(EXIT_FAILURE);
 	}
-
-	char get_hostname[HOST_NAME_MAX + 1];
-	if (gethostname(get_hostname, sizeof(get_hostname)) == -1) {
-		perror("gethostname");
-		exit(EXIT_FAILURE);
-	}
-	fprintf(stderr, " child[%d]: hostname=%s\n", pid, get_hostname);
 
 	// sleep(600);
 
