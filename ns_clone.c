@@ -9,11 +9,24 @@
 #include <unistd.h>
 
 #include "ns_util.h"
+#include <sys/mount.h>
 
 #define STACK_SIZE (1024 * 1024)
 
 int child_func(void *arg) {
 	pid_t pid = getpid();
+
+	// prevent propagation, man mount_namespaces.7
+	if (mount(NULL, "/", NULL, MS_SLAVE | MS_REC, NULL) == -1) {
+		perror("mount");
+		exit(EXIT_FAILURE);
+	}
+
+	if (mount("proc", "/proc", "proc", 0, NULL) == -1) {
+		perror("mount");
+		exit(EXIT_FAILURE);
+	}
+
 	print_ns_inodes(" child");
 
 	// change hostname in new uts namespace
@@ -48,8 +61,7 @@ int main(int argc, char *argv[]) {
 	    // CLONE_NEWCGROUP |
 	    // CLONE_NEWIPC |
 	    // CLONE_NEWNET |
-	    // CLONE_NEWNS |
-	    // CLONE_NEWPID |
+	    CLONE_NEWNS | CLONE_NEWPID |
 	    // CLONE_NEWTIME |
 	    // CLONE_NEWUSER |
 	    CLONE_NEWUTS | SIGCHLD;

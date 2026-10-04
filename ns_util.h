@@ -2,17 +2,18 @@
 #define NS_UTIL_H
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
 
-// print the namespace inode numbers in /proc/PID/ns/
+// print the namespace inode numbers in /proc/self/ns/
 static int print_ns_inodes(const char *who) {
 	char *ns_list[] = {//"cgroup",
 			   //"ipc",
 			   //"net",
-			   //"mnt",
-			   //"pid",
+			   "mnt", "pid",
 			   //"time",
 			   //"user",
 			   "uts"};
@@ -22,11 +23,18 @@ static int print_ns_inodes(const char *who) {
 	char buf[64];
 	int ret = 0;
 
-	// readlink in /proc/PID/ns
+	memset(buf, 0, sizeof(buf));
+	if (realpath("/proc/self/ns", buf) == NULL) {
+		perror("/proc/self/ns");
+		ret = -1;
+	} else {
+		fprintf(stderr, "%s[%u]: %s\n", who, pid, buf);
+	}
+
 	for (size_t i = 0; i < sizeof(ns_list) / sizeof(ns_list[0]); i++) {
 		char *ns = ns_list[i];
 		memset(path, 0, sizeof(path));
-		int n = snprintf(path, sizeof(path), "/proc/%d/ns/%s", pid, ns);
+		int n = snprintf(path, sizeof(path), "/proc/self/ns/%s", ns);
 		if (n < 0 || (size_t)n >= sizeof(path)) {
 			fprintf(stderr, "snprintf: path too long for %s\n", ns);
 			ret = -1;
