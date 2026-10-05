@@ -25,7 +25,6 @@ static inline int print_ns_inodes(const char *who) {
 	char buf[PATH_MAX + 1];
 	int ret = 0;
 
-	memset(buf, 0, sizeof(buf));
 	if (realpath("/proc/self/ns", buf) == NULL) {
 		perror("/proc/self/ns");
 		ret = -1;
@@ -35,7 +34,6 @@ static inline int print_ns_inodes(const char *who) {
 
 	for (size_t i = 0; i < sizeof(ns_list) / sizeof(ns_list[0]); i++) {
 		char *ns = ns_list[i];
-		memset(path, 0, sizeof(path));
 		int n = snprintf(path, PATH_MAX, "/proc/self/ns/%s", ns);
 		if (n < 0 || (size_t)n >= PATH_MAX) {
 			fprintf(stderr, "snprintf: path too long for %s\n", ns);
@@ -43,12 +41,14 @@ static inline int print_ns_inodes(const char *who) {
 			continue;
 		}
 
-		memset(buf, 0, sizeof(buf));
-		if (readlink(path, buf, PATH_MAX) == -1) {
+		ssize_t len = readlink(path, buf, sizeof(buf) - 1);
+		if (len == -1) {
 			perror(path);
 			ret = -1;
 			continue;
 		}
+		buf[len] = '\0';
+
 		fprintf(stderr, "%s[%d]: %s\n", who, pid, buf);
 	}
 
@@ -65,7 +65,6 @@ static inline int set_and_print_hostname(const char *who, const char *name) {
 	}
 
 	char get_hostname[HOST_NAME_MAX + 1];
-	memset(get_hostname, 0, sizeof(get_hostname));
 	if (gethostname(get_hostname, HOST_NAME_MAX) == -1) {
 		perror("gethostname");
 		return -1;
