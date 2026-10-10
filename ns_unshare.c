@@ -1,37 +1,59 @@
-#define _GNU_SOURCE
-#include <limits.h>
-#include <sched.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-
 #include "ns_util.h"
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
+	if (argc < 2) {
+		fprintf(stderr, "Usage: %s CMD [ARGs]\n", argv[0]);
+		return EXIT_FAILURE;
+	}
+
+	// print the current namespaces
+	pid_t pid = getpid();
 	print_ns_inodes(argv[0]);
 
-	int flags =
-	    // CLONE_NEWCGROUP |
-	    // CLONE_NEWIPC |
-	    // CLONE_NEWNET |
-	    // CLONE_NEWNS |
-	    // CLONE_NEWPID |
-	    // CLONE_NEWTIME |
-	    // CLONE_NEWUSER |
-	    CLONE_NEWUTS;
-	if (unshare(flags) == -1) {
+	pid_t child_pid = fork();
+	if (child_pid == -1) {
+		perror("fork");
+		exit(EXIT_FAILURE);
+	}
+
+	if (child_pid > 0) {
+		printf("%s[%d]: created a child[%d] for new namespaces\n",
+		       argv[0], pid, child_pid);
+		wait_and_exit(child_pid);
+	}
+
+	// child creates new namespaces
+	if (unshare(NS_FLAGS) == -1) {
 		perror("unshare");
 		exit(EXIT_FAILURE);
 	}
 
-	print_ns_inodes(argv[0]);
+	// the child still in the host pid namespace
+	// the grandchild does in the new pid namespaces
+	if (NS_FLAGS & CLONE_NEWPID) {
+		pid_t grandchild_pid = fork();
+		if (grandchild_pid == -1) {
+			perror("fork");
+			exit(EXIT_FAILURE);
+		}
 
-	if (set_and_print_hostname(argv[0], "NEW HOSTNAME") == -1) {
-		exit(EXIT_FAILURE);
+		if (grandchild_pid > 0) {
+			printf("%s[%d]: created a child[%d](grandchild) for "
+			       "the new PID namespace\n",
+			       argv[0], getpid(), grandchild_pid);
+			wait_and_exit(grandchild_pid);
+		}
 	}
 
-	// sleep(600);
+	set_ns();
 
-	return EXIT_SUCCESS;
+	// child/grandchild
+	print_ns_inodes(argv[0]);
+
+	// execute the command in the new namespace
+	if (execvp(argv[1], &argv[1]) == -1) {
+		perror("execvp");
+		return EXIT_FAILURE;
+	}
 }
