@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
 	}
 
 	if (child_pid > 0) {
-		printf("%s[%d]: created a child[%d] for new namespaces\n",
+		printf("%s[%d]: created a child[%d] for the namespaces to join\n",
 		       argv[0], pid, child_pid);
 		wait_and_exit(child_pid);
 	}
@@ -41,8 +41,8 @@ int main(int argc, char *argv[])
 		return EXIT_FAILURE;
 	}
 
-	// the child still in the host pid namespace
-	// the grandchild does in the new pid namespaces
+	// the child still in host's PID namespace
+	// the grandchild does in the PID namespace to join
 	if (NS_FLAGS & CLONE_NEWPID) {
 		pid_t grandchild_pid = fork();
 		if (grandchild_pid == -1) {
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 
 		if (grandchild_pid > 0) {
 			printf("%s[%d]: created a child[%d](grandchild) for "
-			       "the new PID namespace\n",
+			       "the PID namespace to join\n",
 			       argv[0], getpid(), grandchild_pid);
 			wait_and_exit(grandchild_pid);
 		}
@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
 	// child/grandchild
 	print_ns_inodes(argv[0]);
 
-	// execute the command in the new namespace
+	// execute the command in the joined namespaces
 	if (execvp(argv[2], &argv[2]) == -1) {
 		perror("execvp");
 		return EXIT_FAILURE;

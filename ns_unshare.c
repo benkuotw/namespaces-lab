@@ -29,8 +29,8 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	// the child still in the host pid namespace
-	// the grandchild does in the new pid namespaces
+	// the child still in host's PID namespace
+	// the grandchild does in the new PID namespace
 	if (NS_FLAGS & CLONE_NEWPID) {
 		pid_t grandchild_pid = fork();
 		if (grandchild_pid == -1) {
@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
 	// child/grandchild
 	print_ns_inodes(argv[0]);
 
-	// execute the command in the new namespace
+	// execute the command in the new namespaces
 	if (execvp(argv[1], &argv[1]) == -1) {
 		perror("execvp");
 		return EXIT_FAILURE;
