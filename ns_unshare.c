@@ -46,7 +46,8 @@ int main(int argc, char *argv[])
 		}
 	}
 
-	set_ns();
+	if (set_ns() == -1)
+		exit(EXIT_FAILURE);
 
 	// child/grandchild
 	print_ns_inodes(argv[0]);

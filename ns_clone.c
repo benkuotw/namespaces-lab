@@ -6,13 +6,14 @@ int child_func(void *arg)
 {
 	char *who = (char *)arg;
 
-	set_ns();
+	if (set_ns() == -1)
+		exit(EXIT_FAILURE);
 
 	print_ns_inodes(who);
 
 	sleep(60);
 
-	return EXIT_SUCCESS;
+	exit(EXIT_SUCCESS);
 }
 
 int main(int argc, char *argv[])

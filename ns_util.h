@@ -49,15 +49,17 @@ static inline int print_ns_inodes(const char *who)
 
 	if (realpath("/proc/self/ns", buf) == NULL) {
 		perror("/proc/self/ns");
+		buf[0] = 0;
 		ret = -1;
 	}
 
 	if (gethostname(hostname, HOST_NAME_MAX) == -1) {
 		perror("gethostname");
+		hostname[0] = 0;
 		ret = -1;
 	}
 
-	printf("%s[%d]: %s;%s\n", who, pid, buf, hostname);
+	printf("%s[%d]: %s; %s\n", who, pid, buf, hostname);
 
 	char path[PATH_MAX + 1];
 	for (size_t i = 0; i < sizeof(ns_list) / sizeof(ns_list[0]); i++) {
@@ -85,12 +87,12 @@ static inline int print_ns_inodes(const char *who)
 
 static inline void wait_and_exit(pid_t child_pid)
 {
-	if (waitpid(child_pid, NULL, 0) == -1) {
+	int status;
+	if (waitpid(child_pid, &status, 0) == -1) {
 		perror("waitpid");
 		exit(EXIT_FAILURE);
 	}
-
-	exit(EXIT_SUCCESS);
+	exit(WIFEXITED(status) ? WEXITSTATUS(status) : 128 + WTERMSIG(status));
 }
 
 static inline int set_ns_mount()
