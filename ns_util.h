@@ -1,8 +1,6 @@
 #ifndef NS_UTIL_H
 #define NS_UTIL_H
 
-#define _GNU_SOURCE
-
 #include <fcntl.h>
 #include <limits.h>
 #include <sched.h>
@@ -23,13 +21,14 @@
 	/* CLONE_NEWIPC    | */   \
 	/* CLONE_NEWNET    | */   \
 	CLONE_NEWNS        |      \
-	CLONE_NEWPID       |    \
+	CLONE_NEWPID       |      \
 	/* CLONE_NEWTIME   | */   \
 	/* CLONE_NEWUSER   | */   \
 	CLONE_NEWUTS       |      \
 	0)
 
 // clang-format on
+
 // print the namespace inode numbers in /proc/self/ns/
 static inline int print_ns_inodes(const char *who)
 {
@@ -66,7 +65,7 @@ static inline int print_ns_inodes(const char *who)
 		char *ns = ns_list[i];
 		int n = snprintf(path, PATH_MAX, "/proc/self/ns/%s", ns);
 		if (n < 0 || (size_t)n >= PATH_MAX) {
-			printf("snprintf: path too long for %s\n", ns);
+			fprintf(stderr, "snprintf: path too long for %s\n", ns);
 			ret = -1;
 			continue;
 		}
@@ -113,7 +112,7 @@ static inline int set_ns_mount()
 
 static inline int set_ns_uts()
 {
-	char *name = "NEW HOSTNAME";
+	char *name = "namespaces-lab";
 	if (sethostname(name, strlen(name)) == -1) {
 		perror("sethostname");
 		return -1;
@@ -124,7 +123,7 @@ static inline int set_ns_uts()
 
 static inline int set_ns()
 {
-	if (NS_FLAGS & CLONE_NEWNS) {
+	if ((NS_FLAGS & (CLONE_NEWNS | CLONE_NEWPID)) == (CLONE_NEWNS | CLONE_NEWPID) {
 		if (set_ns_mount() == -1)
 			return -1;
 	}

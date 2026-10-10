@@ -1,7 +1,8 @@
+BasedOnStyle: LLVM
 UseTab: Always
 IndentWidth: 8
 TabWidth: 8
-ColumnLimit: 80
+ColumnLimit: 0
 BreakBeforeBraces: Custom
 BraceWrapping:
   AfterFunction: true      # function braces on their own line
@@ -11,4 +12,3 @@ AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: false
 IndentCaseLabels: false    # case aligned with switch
 PointerAlignment: Right    # char *p
-ForEachMacros:             # long list: list_for_each_entry, for_each_cpu, ...

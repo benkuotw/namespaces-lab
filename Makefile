@@ -1,10 +1,12 @@
-CFLAGS = -Wall -Wextra -g
-SRCS   = $(wildcard *.c *.h)
-PROGS  = $(basename $(wildcard *.c))
+CFLAGS   = -Wall -Wextra -g
+CPPFLAGS = -D_GNU_SOURCE
+SRCS     = $(wildcard *.c *.h)
+PROGS    = $(basename $(wildcard *.c))
 
 all: $(PROGS)
 
-$(PROGS): ns_util.h
+%: %.c ns_util.h
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $< $(LDLIBS) -o $@
 
 format:
 	clang-format -i $(SRCS)

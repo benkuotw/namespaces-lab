@@ -29,8 +29,7 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	// the child still in host's PID namespace
-	// the grandchild does in the new PID namespace
+	// the child is still in the host's PID namespace; the grandchild is in the new one
 	if (NS_FLAGS & CLONE_NEWPID) {
 		pid_t grandchild_pid = fork();
 		if (grandchild_pid == -1) {
@@ -39,8 +38,7 @@ int main(int argc, char *argv[])
 		}
 
 		if (grandchild_pid > 0) {
-			printf("%s[%d]: created a child[%d](grandchild) for "
-			       "the new PID namespace\n",
+			printf("%s[%d]: created a child[%d] for the new PID namespace\n",
 			       argv[0], getpid(), grandchild_pid);
 			wait_and_exit(grandchild_pid);
 		}
