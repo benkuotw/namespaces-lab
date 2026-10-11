@@ -4,7 +4,6 @@
 #include <fcntl.h>
 #include <limits.h>
 #include <sched.h>
-#include <signal.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -16,7 +15,7 @@
 #include <unistd.h>
 
 // clang-format off
-#define NS_FLAGS (                \
+#define NS_FLAGS (			  \
 	/* CLONE_NEWCGROUP | */   \
 	/* CLONE_NEWIPC    | */   \
 	/* CLONE_NEWNET    | */   \
@@ -123,7 +122,7 @@ static inline int set_ns_uts()
 
 static inline int set_ns()
 {
-	if ((NS_FLAGS & (CLONE_NEWNS | CLONE_NEWPID)) == (CLONE_NEWNS | CLONE_NEWPID) {
+	if ((NS_FLAGS & (CLONE_NEWNS | CLONE_NEWPID)) == (CLONE_NEWNS | CLONE_NEWPID)) {
 		if (set_ns_mount() == -1)
 			return -1;
 	}
