@@ -1,0 +1,4 @@
+ns_clone
+ns_setns
+ns_unshare
+*.o
