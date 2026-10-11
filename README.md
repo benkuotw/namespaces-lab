@@ -1,6 +1,6 @@
 # namespaces-lab
 
-Small C programs for practising the three Linux system calls behind containers:
+Small C programs for practicing the three Linux system calls behind containers:
 `clone()`, `unshare()` and `setns()`. Each program creates or joins namespaces and prints
 which namespaces the process ends up in, so you can see the effect directly.
 
