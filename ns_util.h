@@ -47,13 +47,13 @@ static inline int print_ns_inodes(const char *who)
 
 	if (realpath("/proc/self/ns", buf) == NULL) {
 		perror("/proc/self/ns");
-		buf[0] = 0;
+		buf[0] = '\0';
 		ret = -1;
 	}
 
 	if (gethostname(hostname, HOST_NAME_MAX) == -1) {
 		perror("gethostname");
-		hostname[0] = 0;
+		hostname[0] = '\0';
 		ret = -1;
 	}
 
