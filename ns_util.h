@@ -80,6 +80,8 @@ static inline int print_ns_inodes(const char *who)
 		printf("%s[%d]: %s\n", who, pid, buf);
 	}
 
+	fflush(stdout);
+
 	return ret;
 }
 
