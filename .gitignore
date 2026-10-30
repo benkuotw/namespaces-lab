@@ -1,4 +1,5 @@
 ns_clone
 ns_setns
 ns_unshare
-*.o
+.cache/
+compile_commands.json
